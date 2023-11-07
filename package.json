@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "description": "backend for foodhauz application",
   "main": "server.js",
-  "repository": "https://github.com/JengaBay/foodhauz_mobile",
   "author": "gimase",
   "license": "ICS",
   "scripts": {
