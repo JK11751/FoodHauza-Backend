@@ -4,7 +4,7 @@
   "description": "backend for foodhauz application",
   "main": "server.js",
   "repository": "https://github.com/JengaBay/foodhauz_mobile",
-  "author": "Juliana Sau",
+  "author": "gimase",
   "license": "ICS",
   "scripts": {
     "start": "node server.js",
