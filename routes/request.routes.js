@@ -15,7 +15,7 @@ router.route("/").post(createDonationRequest).get(
   // protect,
   allDonationRequests
 );
-router.route("/donor").get(protect, getRequestsForDonor);
+router.route("/donor").get(getRequestsForDonor);
 router
   .route("/:id")
   .post(updateDonationRequest)
