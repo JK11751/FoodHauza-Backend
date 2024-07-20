@@ -142,26 +142,10 @@ const updateDonationRequest = asyncHandler(async (req, res, next) => {
   }
 });
 
-const getRequestsForDonor = asyncHandler(async (req, res) => {
-  try {
-    const donations = await Donation.find({ creator: req.user._id }).select('_id');
-    const requests = await Request.find({ donation: { $in: donations.map(d => d._id) } })
-      .populate('requestor', 'name profile_pic email')
-      .populate('donation', 'location foods');
-    
-    res.status(200).json(requests);
-  } catch (error) {
-    res.status(400);
-    throw new Error('Failed to get requests for the donor');
-  }
-});
-
-
 module.exports = {
   createDonationRequest,
   allDonationRequests,
   deleteDonationRequest,
   updateDonationRequest,
   getDonationRequest,
-  getRequestsForDonor,
 };
