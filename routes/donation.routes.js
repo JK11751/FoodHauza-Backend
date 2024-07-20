@@ -6,7 +6,6 @@ const {
   updateDonation,
   getDonation,
   deleteDonation,
-  requestsForDonor,
 } = require("../controllers/donation.controller");
 const { protect } = require("../middlewares/authMiddleware");
 
@@ -19,6 +18,5 @@ router.route("/user/:user_id").get(allUserDonations);
 
 // Kept the same for single donation operations
 router.route("/:id").post(updateDonation).get(getDonation).delete(deleteDonation);
-router.get("/donor/requests", requestsForDonor); 
 
 module.exports = router;

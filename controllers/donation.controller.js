@@ -137,32 +137,6 @@ const updateDonation = asyncHandler(async (req, res, next) => {
   }
 });
 
-const requestsForDonor = asyncHandler(async (req, res) => {
-  const donorId = req.params.user_id; 
-
-  if (!donorId) {
-    return res.status(400).json({ message: "Donor ID not provided" });
-  }
-
-  try {
-    // Find all donations made by the donor
-    const donations = await Donation.find({ creator: donorId });
-
-    // Extract donation IDs
-    const donationIds = donations.map(donation => donation._id);
-
-    // Find all requests for these donations
-    const requests = await Request.find({ donation: { $in: donationIds } })
-      .populate("requestor", "name email profile_pic")
-      .populate("donation", "location foods");
-
-    res.status(200).json(requests);
-  } catch (error) {
-    res.status(500).json({ message: "Failed to fetch donation requests for donor" });
-  }
-});
-
-
 module.exports = {
   createDonation,
   allDonations,
@@ -170,5 +144,4 @@ module.exports = {
   deleteDonation,
   updateDonation,
   getDonation,
-  requestsForDonor,
 };
