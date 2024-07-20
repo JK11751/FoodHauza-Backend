@@ -5,6 +5,7 @@ const {
   deleteDonationRequest,
   updateDonationRequest,
   getDonationRequest,
+  getRequestsForDonor,
 } = require("../controllers/request.controller");
 const {protect} = require("../middlewares/authMiddleware");
 
@@ -14,6 +15,7 @@ router.route("/").post(createDonationRequest).get(
   // protect,
   allDonationRequests
 );
+router.route("/donor").get(protect, getRequestsForDonor);
 router
   .route("/:id")
   .post(updateDonationRequest)
