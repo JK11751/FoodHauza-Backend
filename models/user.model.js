@@ -12,6 +12,9 @@ const userSchema = mongoose.Schema(
         "https://icon-library.com/images/anonymous-avatar-icon/anonymous-avatar-icon-25.jpg",
     },
     role: {type: String, required: true},
+    isVerified: { type: Boolean, default: false },
+    otp: { type: String },
+    otpExpiry: { type: Date }, 
   },
   {
     timestamps: true,
@@ -25,13 +28,16 @@ userSchema.methods.matchPassword = async function (enteredPassword) {
 //next is a middleware
 //logic to encrypt a password
 userSchema.pre("save", async function (next) {
-  if (!this.isModified) {
-    next();
+  // Ensure that the password is modified before hashing
+  if (!this.isModified('password')) {
+    return next();
   }
 
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);
+  next();
 });
+
 
 const User = mongoose.model("User", userSchema);
 
