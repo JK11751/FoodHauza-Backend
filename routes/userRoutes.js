@@ -5,7 +5,8 @@ const {
   allUsers,
   verifyOTP,
   resendOTP,
-  updateUser ,
+  updateUser,
+  deleteUser,
 } = require("../controllers/user.controller");
 const { protect } = require("../middlewares/authMiddleware");
 
@@ -17,5 +18,7 @@ router.post("/login", authUser);
 router.post("/verify", verifyOTP);
 router.post("/resend-otp", resendOTP);
 router.put("/user/:userId", updateUser);
+router.delete("/user/:userId", protect, deleteUser);
+
 
 module.exports = router;
