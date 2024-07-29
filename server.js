@@ -6,20 +6,30 @@ const connectToDB = require("./config/db");
 const userRoutes = require("./routes/userRoutes");
 const donationRoutes = require("./routes/donation.routes");
 const requestRoutes = require("./routes/request.routes");
-const {notFound, errorHandler} = require("./middlewares/errorMiddleware");
+const { notFound, errorHandler } = require("./middlewares/errorMiddleware");
+const http = require('http');
+const socketIo = require('socket.io');
+const Message = require('./models/Message');
 
-// configure required packages
+
 dotenv.config();
-connectToDB()
+connectToDB();
 
-// transfer contents of express to app
-const app = express()
-app.use(express.json()); //to accept json data
+const app = express();
+const server = http.createServer(app);
+const io = socketIo(server, {
+  cors: {
+    origin: "*",
+    methods: ["GET", "POST"]
+  }
+});
+
+app.use(express.json()); 
 
 // response on / route
 app.get("/", (req, res) => {
-    res.send("API is running successfully")
-})
+  res.send("API is running successfully");
+});
 
 // routes
 app.use(cors());
@@ -31,7 +41,25 @@ app.use("/api/requests", requestRoutes);
 app.use(notFound);
 app.use(errorHandler);
 
-const PORT = process.env.PORT;
-app.listen(PORT, () => {
+io.on('connection', (socket) => {
+  console.log('A user connected');
+
+  socket.on('sendMessage', async (data) => {
+    const { senderId, receiverId, content } = data;
+    const message = new Message({ sender: senderId, receiver: receiverId, content });
+    await message.save();
+    console.log('Message saved:', message); // Log saved message
+    io.emit('newMessage', message);
+    console.log('Message emitted:', message); // Log emitted message
+  });
+  
+
+  socket.on('disconnect', () => {
+    console.log('A user disconnected');
+  });
+});
+
+const PORT = process.env.PORT || 5000;
+server.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`.yellow.bold);
 });

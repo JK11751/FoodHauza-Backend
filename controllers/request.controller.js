@@ -25,7 +25,6 @@ const createDonationRequest = asyncHandler(async (req, res) => {
     delivered,
     cancelled,
     requested_date,
-    delivered_date,
   };
   try {
     var request = await Request.create(newRequest);
@@ -39,7 +38,6 @@ const createDonationRequest = asyncHandler(async (req, res) => {
         delivered: request.delivered,
         cancelled: request.cancelled,
         requested_date: request.requested_date,
-        delivered_date: request.delivered_date,
       });
     }
   } catch (error) {
@@ -142,10 +140,82 @@ const updateDonationRequest = asyncHandler(async (req, res, next) => {
   }
 });
 
+// Handle accepting a donation request
+const acceptDonationRequest = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const { pickupDate, pickupTime, pickupLocation } = req.body;
+
+  try {
+    const request = await Request.findById(id);
+    if (!request) {
+      return res.status(404).json({ message: "Request not found" });
+    }
+
+    request.accepted = true;
+    request.pickupDate = pickupDate;
+    request.pickupTime = pickupTime;
+    request.pickupLocation = pickupLocation;
+
+    await request.save();
+    res.status(200).json({ message: "Request accepted", request });
+  } catch (error) {
+    res.status(500).json({ message: "Error accepting request", error });
+  }
+});
+
+// Handle rejecting a donation request
+const rejectDonationRequest = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const request = await Request.findById(id);
+    if (!request) {
+      return res.status(404).json({ message: "Request not found" });
+    }
+
+    request.accepted = false;
+    request.cancelled = true;
+
+    await request.save();
+    res.status(200).json({ message: "Request rejected", request });
+  } catch (error) {
+    res.status(500).json({ message: "Error rejecting request", error });
+  }
+});
+
+
+const checkUserRequest = asyncHandler(async (req, res) => {
+  const { donation_id, requestor_id } = req.query;
+
+  if (!donation_id || !requestor_id) {
+    return res.status(400).json({ message: "Missing parameters" });
+  }
+
+  try {
+    const existingRequest = await Request.findOne({
+      donation: donation_id,
+      requestor: requestor_id,
+    });
+
+    if (existingRequest) {
+      return res.status(200).json({ hasRequested: true });
+    } else {
+      return res.status(200).json({ hasRequested: false });
+    }
+  } catch (error) {
+    return res.status(500).json({ message: "Error checking request", error });
+  }
+});
+
+
+
 module.exports = {
   createDonationRequest,
   allDonationRequests,
   deleteDonationRequest,
   updateDonationRequest,
   getDonationRequest,
+  acceptDonationRequest,
+  checkUserRequest,
+  rejectDonationRequest,
 };

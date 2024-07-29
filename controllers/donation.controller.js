@@ -1,5 +1,6 @@
 const asyncHandler = require("express-async-handler");
 const Donation = require("../models/donation.model");
+const Request = require("../models/request.model");
 
 const createDonation = asyncHandler(async (req, res) => {
   const {foods, location, creator, approved, cancelled, requested} = req.body;
@@ -137,6 +138,24 @@ const updateDonation = asyncHandler(async (req, res, next) => {
   }
 });
 
+const allDonationRequestsForDonor = asyncHandler(async (req, res) => {
+
+  try {
+    const { donorId } = req.params;
+    //console.log(`Fetching requests for donor ID: ${donorId}`);
+
+    const requests = await Request.find({ donor: donorId }).populate('donation').populate('requestor');
+
+    if (!requests) {
+      return res.status(404).json({ message: 'No requests found for this donor' });
+    }
+
+    res.status(200).json(requests);
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to get the donation requests', stack: error.stack });
+  }
+});
+
 module.exports = {
   createDonation,
   allDonations,
@@ -144,4 +163,5 @@ module.exports = {
   deleteDonation,
   updateDonation,
   getDonation,
+  allDonationRequestsForDonor,
 };
