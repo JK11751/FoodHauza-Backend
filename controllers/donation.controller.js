@@ -38,7 +38,6 @@ const createDonation = asyncHandler(async (req, res) => {
   }
 });
 
-// /api/user?search=janedoe
 const allUserDonations = asyncHandler(async (req, res) => {
     try {
     const donations = await Donation.find({creator: req.params.user_id})

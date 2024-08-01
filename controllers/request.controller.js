@@ -10,12 +10,20 @@ const createDonationRequest = asyncHandler(async (req, res) => {
     delivered,
     cancelled,
     requested_date,
-    delivered_date,
   } = req.body;
 
   if (!donation || !requested_date || !requestor) {
     res.status(400);
     throw new Error("Please fill all fields");
+  }
+
+  // Check if there's already a request for this donation
+  const existingRequest = await Request.findOne({ donation, cancelled: false });
+
+  if (existingRequest) {
+    return res
+      .status(400)
+      .json({ message: "This donation has already been requested" });
   }
 
   const newRequest = {
@@ -29,6 +37,14 @@ const createDonationRequest = asyncHandler(async (req, res) => {
   try {
     var request = await Request.create(newRequest);
     request = await request.populate("requestor", "name email profile_pic");
+
+    // Update the donation's requested field to true
+    await Donation.findByIdAndUpdate(
+      donation,
+      { requested: true },
+      { new: true }
+    );
+
     if (donation) {
       res.status(201).json({
         _id: request._id,
@@ -49,15 +65,17 @@ const createDonationRequest = asyncHandler(async (req, res) => {
 // /api/user?search=janedoe
 const allDonationRequests = asyncHandler(async (req, res) => {
   try {
-    await Request.find({requestor: req.query.user_id}).populate("requestor", "name profile_pic email").then(async (results) => {
+    await Request.find({ requestor: req.query.user_id })
+      .populate("requestor", "name profile_pic email")
+      .then(async (results) => {
         results = await Donation.populate(results, {
           path: "donation",
           select: "location foods",
-        })
-        
+        });
+
         console.log(results);
         res.status(200).json(results);
-      })
+      });
   } catch (error) {
     res.status(400);
     throw new Error("Failed to get the donation requests");
@@ -72,10 +90,9 @@ const getDonationRequest = asyncHandler(async (req, res, next) => {
     return res.sendStatus(400);
   }
   try {
-    var donation = await Request.findOne({_id: req.params.id})
+    var donation = await Request.findOne({ _id: req.params.id })
       .populate("requestor", "name email profile_pic")
-      .populate("donation",
-      "location foods");
+      .populate("donation", "location foods");
 
     if (donation) {
       res.status(200).json(donation);
@@ -95,7 +112,7 @@ const deleteDonationRequest = asyncHandler(async (req, res, next) => {
     return res.sendStatus(400);
   }
   try {
-    const donation = await Request.findByIdAndDelete({_id: req.params.id});
+    const donation = await Request.findByIdAndDelete({ _id: req.params.id });
     if (donation) {
       return res.status(201).json({
         message: "Donation deleted",
@@ -113,12 +130,12 @@ const deleteDonationRequest = asyncHandler(async (req, res, next) => {
 
 const updateDonationRequest = asyncHandler(async (req, res, next) => {
   try {
-    const donation = await Request.findById({_id: req.params.id});
+    const donation = await Request.findById({ _id: req.params.id });
     if (donation) {
       const willBeUpdated = await Request.findByIdAndUpdate(
-        {_id: req.params.id},
+        { _id: req.params.id },
         req.body,
-        {lean: true, new: true}
+        { lean: true, new: true }
       );
       if (willBeUpdated) {
         return res.status(201).json({
@@ -183,7 +200,6 @@ const rejectDonationRequest = asyncHandler(async (req, res) => {
   }
 });
 
-
 const checkUserRequest = asyncHandler(async (req, res) => {
   const { donation_id, requestor_id } = req.query;
 
@@ -206,8 +222,6 @@ const checkUserRequest = asyncHandler(async (req, res) => {
     return res.status(500).json({ message: "Error checking request", error });
   }
 });
-
-
 
 module.exports = {
   createDonationRequest,
