@@ -108,23 +108,25 @@ const deleteDonationRequest = asyncHandler(async (req, res, next) => {
   const id = req.params.id;
 
   if (!id) {
-    console.log("donation id parameter not sent with request");
+    console.log("donation request id parameter not sent with request");
     return res.sendStatus(400);
   }
   try {
     const donation = await Request.findByIdAndDelete({ _id: req.params.id });
     if (donation) {
-      return res.status(201).json({
-        message: "Donation deleted",
+      return res.status(200).json({
+        message: "Donation request deleted",
+        deletedRequest: donation,
       });
     } else {
       return res.status(400).json({
-        message: "Something went wrong when deleting the donation",
+        message: "Something went wrong when deleting the donation request",
       });
     }
   } catch (error) {
-    res.status(400);
-    throw new Error("Failed to delete the donation");
+    res
+      .status(500)
+      .json({ message: "Failed to delete the donation request", error });
   }
 });
 
@@ -173,8 +175,8 @@ const acceptDonationRequest = asyncHandler(async (req, res) => {
     request.pickupTime = pickupTime;
     request.pickupLocation = pickupLocation;
 
-    await request.save();
-    res.status(200).json({ message: "Request accepted", request });
+    const updatedRequest = await request.save();
+    res.status(200).json({ message: "Request accepted", updatedRequest });
   } catch (error) {
     res.status(500).json({ message: "Error accepting request", error });
   }
@@ -193,8 +195,8 @@ const rejectDonationRequest = asyncHandler(async (req, res) => {
     request.accepted = false;
     request.cancelled = true;
 
-    await request.save();
-    res.status(200).json({ message: "Request rejected", request });
+    const updatedRequest = await request.save();
+    res.status(200).json({ message: "Request rejected", updatedRequest });
   } catch (error) {
     res.status(500).json({ message: "Error rejecting request", error });
   }
