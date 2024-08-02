@@ -25,7 +25,8 @@ const donationItemSchema = mongoose.Schema(
 
 const donationSchema = mongoose.Schema(
   {
-    location: {type: Array, required: true},
+    location: {type: String, required: true},
+    //location: {type: Array, required: true},
     foods: [donationItemSchema],
     creator: [{ref: "User", type: mongoose.Schema.Types.ObjectId}],
     approved: {type: Boolean, required: true, default: false},
