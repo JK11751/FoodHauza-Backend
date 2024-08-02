@@ -1,9 +1,10 @@
 const asyncHandler = require("express-async-handler");
 const Donation = require("../models/donation.model");
 const Request = require("../models/request.model");
+const { stat } = require("fs");
 
 const createDonation = asyncHandler(async (req, res) => {
-  const {foods, location, creator, approved, cancelled, requested} = req.body;
+  const {foods, location, creator, status, requested} = req.body;
 
   if (!foods || !location || !creator) {
     res.status(400);
@@ -14,8 +15,7 @@ const createDonation = asyncHandler(async (req, res) => {
     foods,
     location,
     creator,
-    approved,
-    cancelled,
+   status,
     requested,
   }
   try {
@@ -26,8 +26,7 @@ const createDonation = asyncHandler(async (req, res) => {
             _id: donation._id,
             foods: donation.foods,
             creator: donation.creator,
-            approved: donation.approved,
-            cancelled: donation.cancelled,
+            status: donation.status,
             requested: donation.requested
         });
     }

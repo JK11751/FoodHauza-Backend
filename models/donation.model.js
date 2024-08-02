@@ -29,8 +29,7 @@ const donationSchema = mongoose.Schema(
     //location: {type: Array, required: true},
     foods: [donationItemSchema],
     creator: [{ref: "User", type: mongoose.Schema.Types.ObjectId}],
-    approved: {type: Boolean, required: true, default: false},
-    cancelled: {type: Boolean, required: true, default: false},
+    status: { type: String, required: true, default: "Pending" },
     requested: {type: Boolean, required: true, default: false},
   },
   {

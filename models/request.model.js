@@ -4,9 +4,7 @@ const requestSchema = mongoose.Schema(
   {
     donation: [{ ref: "DonationPack", type: mongoose.Schema.Types.ObjectId }],
     requestor: [{ ref: "User", type: mongoose.Schema.Types.ObjectId }],
-    accepted: { type: Boolean, required: true, default: false },
-    delivered: { type: Boolean, required: true, default: false },
-    cancelled: { type: Boolean, required: true, default: false },
+    status: { type: String, required: true, default: "Pending" },
     requested_date: { type: Date, required: true },
     pickupDate: { type: Date }, 
     pickupTime: { type: String }, 

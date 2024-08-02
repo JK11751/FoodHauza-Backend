@@ -6,9 +6,7 @@ const createDonationRequest = asyncHandler(async (req, res) => {
   const {
     donation,
     requestor,
-    accepted,
-    delivered,
-    cancelled,
+   status,
     requested_date,
   } = req.body;
 
@@ -29,9 +27,7 @@ const createDonationRequest = asyncHandler(async (req, res) => {
   const newRequest = {
     donation,
     requestor,
-    accepted,
-    delivered,
-    cancelled,
+    status,
     requested_date,
   };
   try {
@@ -50,9 +46,8 @@ const createDonationRequest = asyncHandler(async (req, res) => {
         _id: request._id,
         donation: request.donation,
         requestor: request.requestor,
-        accepted: request.accepted,
-        delivered: request.delivered,
-        cancelled: request.cancelled,
+        status: request.status,
+        
         requested_date: request.requested_date,
       });
     }
@@ -170,7 +165,7 @@ const acceptDonationRequest = asyncHandler(async (req, res) => {
       return res.status(404).json({ message: "Request not found" });
     }
 
-    request.accepted = true;
+    request.status = "Accepted";
     request.pickupDate = pickupDate;
     request.pickupTime = pickupTime;
     request.pickupLocation = pickupLocation;
@@ -192,8 +187,7 @@ const rejectDonationRequest = asyncHandler(async (req, res) => {
       return res.status(404).json({ message: "Request not found" });
     }
 
-    request.accepted = false;
-    request.cancelled = true;
+    request.status = "Rejected";
 
     const updatedRequest = await request.save();
     res.status(200).json({ message: "Request rejected", updatedRequest });
